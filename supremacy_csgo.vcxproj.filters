@@ -318,9 +318,6 @@
     <ClInclude Include="visuals.hpp">
       <Filter>Source Files\features\visuals</Filter>
     </ClInclude>
-    <ClInclude Include="..\perseus.legacy-main\vfunc.hpp">
-      <Filter>Source Files\features\virtual function</Filter>
-    </ClInclude>
     <ClInclude Include="rebuilt_animations.hpp">
       <Filter>Source Files\features\animations</Filter>
     </ClInclude>
@@ -338,6 +335,9 @@
     </ClInclude>
     <ClInclude Include="bonesetup.h">
       <Filter>Source Files\features</Filter>
+    </ClInclude>
+    <ClInclude Include="vfunc.hpp">
+      <Filter>Source Files\features\virtual function</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

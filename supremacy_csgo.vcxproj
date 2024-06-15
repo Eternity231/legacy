@@ -204,7 +204,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\perseus.legacy-main\vfunc.hpp" />
     <ClInclude Include="address.h" />
     <ClInclude Include="angle.h" />
     <ClInclude Include="base64.h" />
@@ -291,6 +290,7 @@
     <ClInclude Include="utlvector.h" />
     <ClInclude Include="vector2.h" />
     <ClInclude Include="vector3.h" />
+    <ClInclude Include="vfunc.hpp" />
     <ClInclude Include="visuals.hpp" />
     <ClInclude Include="vmt.h" />
     <ClInclude Include="winapir.h" />
