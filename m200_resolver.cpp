@@ -41,10 +41,11 @@ void M200::resolve_player( Player* player, IWSRecord* record, bool& lby_updated_
 					 && is_angle_within_range( lby, last_last_moving_lby[ index - 1 ], 35.0f )
 					 && is_angle_within_range( last_moving_lby[ index - 1 ], last_last_moving_lby[ index - 1 ], 35.0f ) ) {
 					has_real_jitter[ index - 1 ] = true;
-				} else if ( is_angle_within_range( lby, last_moving_lby[ index - 1 ], 5.0f )
+				} 
+				else if ( is_angle_within_range( lby, last_moving_lby[ index - 1 ], 5.0f )
 						   && is_angle_within_range( lby, last_last_moving_lby[ index - 1 ], 5.0f )
 						   && is_angle_within_range( last_moving_lby[ index - 1 ], last_last_moving_lby[ index - 1 ], 5.0f ) ) {
-					has_real_jitter[ index - 1 ] = false;
+				    has_real_jitter[ index - 1 ] = false;
 				}
 			}
 

@@ -1,9 +1,9 @@
 #include "includes.h"
 #include <execution>
 
-IWS2000 g_aimbot{ };;
+IWS2000 g_iws{ };;
 
-void IWS2000Targer::UpdateAnimations(IWSRecord* record) {
+void IWS2000Target::UpdateAnimations(IWSRecord* record) {
 	CCSGOPlayerAnimState* state = this->m_player->m_PlayerAnimState();
 	if (!state)
 		return;
@@ -66,7 +66,6 @@ void IWS2000Targer::UpdateAnimations(IWSRecord* record) {
 	record->m_fake_flick = false;
 	record->m_mode = M200::ResolveMode::None;
 	record->m_resolved = false;
-	record->m_iDistorting = false;
 	record->m_max_current_speed = 260.f;
 	record->m_broke_lc = false;
 
@@ -126,11 +125,11 @@ void IWS2000Targer::UpdateAnimations(IWSRecord* record) {
 					this->m_player->m_fFlags() |= FL_ONGROUND;
 
 				// fix jump_fall. (c) esoterik
-				auto v490 = this->m_player->GetSequenceActivity(record->m_layers[5].m_sequence);
+				auto sequence = this->m_player->GetSequenceActivity(record->m_layers[5].m_sequence);
 
 				// player landed this animation tick.
 				if (record->m_layers[5].m_sequence == previous_record->m_layers[5].m_sequence && (previous_record->m_layers[5].m_weight != 0.0f || record->m_layers[5].m_weight == 0.0f)
-					|| !(v490 == ACT_CSGO_LAND_LIGHT || v490 == ACT_CSGO_LAND_HEAVY))
+					|| !(sequence == ACT_CSGO_LAND_LIGHT || sequence == ACT_CSGO_LAND_HEAVY))
 				{
 					if ((record->m_flags & 1) != 0 && (previous_record->m_flags & FL_ONGROUND) == 0) {
 						this->m_player->m_fFlags() &= ~FL_ONGROUND;
@@ -192,7 +191,7 @@ void IWS2000Targer::UpdateAnimations(IWSRecord* record) {
 
 	CorrectVelocity(this->m_player, record, previous_record, pre_previous_record, record->m_max_current_speed); // call velocity fix b4 resolving because otherwise dump montage
 
-	bool fake = !bot && g_menu.main.aimbot.correct.get();
+	bool fake = !bot && g_config.b["iws_enable"];
 
 	// if using fake angles, correct angles.
 	if (fake) {
@@ -281,7 +280,7 @@ void IWS2000Targer::UpdateAnimations(IWSRecord* record) {
 	g_csgo.m_globals->m_tick_count = m_iTickcount;
 }
 
-void IWS2000Targer::OnNetUpdate(Player* player) {
+void IWS2000Target::OnNetUpdate(Player* player) {
 	bool reset = (!g_menu.main.aimbot.enable.get() || player->m_lifeState() == LIFE_DEAD || !player->enemy(g_cl.m_local));
 
 	// if this happens, delete all the lagrecords.
@@ -296,35 +295,14 @@ void IWS2000Targer::OnNetUpdate(Player* player) {
 		this->m_body_update = FLT_MAX;
 		this->m_moving_time = -1;
 		this->m_moving_origin = vec3_t();
-		this->m_test_index = 0;
 
 		// reset stand and body index.
-		this->m_experimental_index = 0;
-		this->m_airback_index = 0;
-		this->m_testfs_index = 0;
-		this->m_lowlby_index = 0;
-		this->m_logic_index = 0;
-		this->m_stand_index4 = 0;
-		this->m_air_index = 0;
-		this->m_airlby_index = 0;
-		this->m_spin_index = 0;
-		this->m_stand_index1 = 0;
-		this->m_stand_index2 = 0;
-		this->m_stand_index3 = 0;
-		this->m_back_index = 0;
-		this->m_reversefs_index = 0;
-		this->m_back_at_index = 0;
-		this->m_reversefs_at_index = 0;
 		this->m_lastmove_index = 0;
 		this->m_lby_index = 0;
-		this->m_airlast_index = 0;
-		this->m_body_index = 0;
-		this->m_sidelast_index = 0;
 		this->m_ticks_since_dormant = 0;
-		this->m_experimental_index = 0;
 		this->m_moving_index = 0;
-		this->m_alive_loop_cycle = -1;
 		this->m_body_proxy_updated = false;
+		this->m_body_index = false;
 		return;
 	}
 
@@ -434,7 +412,7 @@ void IWS2000Targer::OnNetUpdate(Player* player) {
 	}
 }
 
-void IWS2000Targer::OnRoundStart(Player* player) {
+void IWS2000Target::OnRoundStart(Player* player) {
 	this->m_player = player;
 	this->m_moving_time = -1;
 	this->m_shots = 0;
@@ -443,30 +421,11 @@ void IWS2000Targer::OnRoundStart(Player* player) {
 	this->m_body_update = FLT_MAX;
 	this->m_moving_time = -1;
 	this->m_moving_origin = vec3_t();
-	this->m_test_index = 0;
 
 	// reset stand and body index.
-	this->m_experimental_index = 0;
-	this->m_airback_index = 0;
-	this->m_testfs_index = 0;
-	this->m_lowlby_index = 0;
-	this->m_logic_index = 0;
-	this->m_stand_index4 = 0;
-	this->m_air_index = 0;
-	this->m_airlby_index = 0;
-	this->m_spin_index = 0;
-	this->m_stand_index1 = 0;
-	this->m_stand_index2 = 0;
-	this->m_stand_index3 = 0;
-	this->m_back_index = 0;
-	this->m_reversefs_index = 0;
-	this->m_back_at_index = 0;
-	this->m_reversefs_at_index = 0;
 	this->m_lastmove_index = 0;
 	this->m_lby_index = 0;
-	this->m_airlast_index = 0;
 	this->m_body_index = 0;
-	this->m_sidelast_index = 0;
 	this->m_ticks_since_dormant = 0;
 	this->m_moving_index = 0;
 	this->m_body_proxy_updated = false;
@@ -476,7 +435,7 @@ void IWS2000Targer::OnRoundStart(Player* player) {
 
 }
 
-void IWS2000Targer::SetupHitboxes(IWSRecord* record, bool history) {
+void IWS2000Target::SetupHitboxes(IWSRecord* record, bool history) {
 	// reset hitboxes & prefer body state.
 	m_hitboxes.clear();
 	m_prefer_head = false;
@@ -558,19 +517,19 @@ void IWS2000Targer::SetupHitboxes(IWSRecord* record, bool history) {
 		force_body = true;
 
 	// only, on key.
-	if (g_aimbot.m_force_body)
+	if (g_iws.m_force_body)
 		force_body = true;
 
 	// NOTE: i will push hitbox in damage % order
 	bool ignore_limbs = record->m_velocity.length_2d() > 71.f && g_menu.main.aimbot.ignor_limbs.get();
 
 	// head
-	if (g_menu.main.aimbot.hitbox.get(0) && !g_aimbot.m_force_body) {
+	if (g_menu.main.aimbot.hitbox.get(0) && !g_iws.m_force_body) {
 		m_hitboxes.push_back({ HITBOX_HEAD });
 	}
 
 	// neck
-	if (g_menu.main.aimbot.hitbox.get(1) and !g_aimbot.m_force_body) {
+	if (g_menu.main.aimbot.hitbox.get(1) and !g_iws.m_force_body) {
 		m_hitboxes.push_back({ HITBOX_NECK });
 		//m_hitboxes.push_back({ HITBOX_LOWER_NECK });
 	}
@@ -583,7 +542,7 @@ void IWS2000Targer::SetupHitboxes(IWSRecord* record, bool history) {
 	}
 
 	// arms
-	if (g_menu.main.aimbot.hitbox.get(3) and !g_aimbot.m_force_body) {
+	if (g_menu.main.aimbot.hitbox.get(3) and !g_iws.m_force_body) {
 		m_hitboxes.push_back({ HITBOX_L_UPPER_ARM });
 		m_hitboxes.push_back({ HITBOX_R_UPPER_ARM });
 		m_hitboxes.push_back({ HITBOX_L_FOREARM });
@@ -599,7 +558,7 @@ void IWS2000Targer::SetupHitboxes(IWSRecord* record, bool history) {
 	}
 
 	// legs.
-	if (g_menu.main.aimbot.hitbox.get(5) and !g_aimbot.m_force_body) {
+	if (g_menu.main.aimbot.hitbox.get(5) and !g_iws.m_force_body) {
 		m_hitboxes.push_back({ HITBOX_L_CALF });
 		m_hitboxes.push_back({ HITBOX_R_CALF });
 		m_hitboxes.push_back({ HITBOX_L_THIGH });
@@ -607,7 +566,7 @@ void IWS2000Targer::SetupHitboxes(IWSRecord* record, bool history) {
 	}
 
 	// feet.
-	if (g_menu.main.aimbot.hitbox.get(6) && !ignore_limbs and !g_aimbot.m_force_body) {
+	if (g_menu.main.aimbot.hitbox.get(6) && !ignore_limbs and !g_iws.m_force_body) {
 		m_hitboxes.push_back({ HITBOX_L_FOOT });
 		m_hitboxes.push_back({ HITBOX_R_FOOT });
 	}
@@ -634,7 +593,7 @@ void IWS2000::init() {
 
 void IWS2000::start_target_selection() {
 	IWSRecord* front{ };
-	IWS2000Targer* data{ };
+	IWS2000Target* data{ };
 
 	// setup bones for all valid targets.
 	for (int i{ 1 }; i <= g_csgo.m_globals->m_max_clients; ++i) {
@@ -752,7 +711,7 @@ void IWS2000::finish_target_selection() {
 	// NOTE: what you can do here is make multiples modes
 	//       but most of them will be shit when using target limit
 	//       ^ pandora did this mistake on their target limit
-	auto sort_targets = [&](const IWS2000Targer* a, const IWS2000Targer* b) {
+	auto sort_targets = [&](const IWS2000Target* a, const IWS2000Target* b) {
 
 
 		// player b and player a are the same
@@ -1029,7 +988,7 @@ void IWS2000::find() {
 		this->m_hitbox = best.hitbox;
 		this->m_hitgroup = best.hitgroup;
 		if (m_target) {
-			IWS2000Targer* data = &g_aimbot.m_players[this->m_target->index() - 1];
+			IWS2000Target* data = &g_iws.m_players[this->m_target->index() - 1];
 
 			if (data)
 				data->m_pos = best.pos;
@@ -1173,7 +1132,8 @@ bool IWS2000::CheckHitchance(Player* player, const ang_t& angle, int seeds) {
 	return false;
 }
 
-bool IWS2000Targer::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int index, std::vector< vec3_t >& points) {
+// enrage raytrace 
+bool IWS2000Target::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int index, std::vector< vec3_t >& points) {
 	// reset points.
 	points.clear();
 
@@ -1194,17 +1154,28 @@ bool IWS2000Targer::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int i
 		return false;
 
 	// get hitbox scales.
-	float scale = g_menu.main.aimbot.body_scale.get() / 100.f;
+	float scale = g_menu.main.aimbot.scale.get() / 100.f;
+	float bscale = g_menu.main.aimbot.body_scale.get() / 100.f;
+	float lscale = 0.875f;
 
-	// big inair fix.
-	if (!(record->m_pred_flags & FL_ONGROUND))
-		scale = 0.7f;
+	// compute raw center point.
+	vec3_t center = (bbox->m_mins + bbox->m_maxs) / 2.f;
 
-	// big duck fix.
-	if (!(record->m_pred_flags & FL_DUCKING) && scale > 0.6f)
-		scale = 0.6f;
+	vec3_t transformed_center = center;
+	math::VectorTransform(transformed_center, bones[bbox->m_bone], transformed_center);
 
-	//float bscale = g_menu.main.aimbot.body_scale.get() / 100.f;
+	// calculate dynamic scale.
+	if (!g_menu.main.aimbot.static_scale.get()) {
+		float spread = g_cl.m_weapon->GetInaccuracy() + g_cl.m_weapon->GetSpread();
+		float distance = transformed_center.dist_to(g_cl.m_shoot_pos);
+
+		distance /= sin(math::deg_to_rad(90.f - math::rad_to_deg(spread)));
+		spread = sin(spread);
+
+		// get radius and set spread.
+		float radius = std::max(bbox->m_radius - distance * spread, 0.f);
+		scale = bscale = lscale = std::clamp(radius / bbox->m_radius, 0.f, 1.f);
+	}
 
 	// these indexes represent boxes.
 	if (bbox->m_radius <= 0.f) {
@@ -1224,12 +1195,9 @@ bool IWS2000Targer::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int i
 		// extract origin from matrix.
 		vec3_t origin = matrix.GetOrigin();
 
-		// compute raw center point.
-		vec3_t center = (bbox->m_mins + bbox->m_maxs) / 2.f;
-
 		// the feet hiboxes have a side, heel and the toe.
 		if (index == HITBOX_R_FOOT || index == HITBOX_L_FOOT) {
-			float d1 = (bbox->m_mins.z - center.z) * 0.875f;
+			float d1 = (bbox->m_mins.z - center.z) * lscale;
 
 			// invert.
 			if (index == HITBOX_L_FOOT)
@@ -1238,11 +1206,12 @@ bool IWS2000Targer::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int i
 			// side is more optimal then center.
 			points.push_back({ center.x, center.y, center.z + d1 });
 
-			if (g_menu.main.aimbot.hitbox.get(6)) {
+			if (g_menu.main.aimbot.multipoint.get(4))
+			{
 				// get point offset relative to center point
 				// and factor in hitbox scale.
-				float d2 = (bbox->m_mins.x - center.x) * scale;
-				float d3 = (bbox->m_maxs.x - center.x) * scale;
+				float d2 = (bbox->m_mins.x - center.x) * lscale;
+				float d3 = (bbox->m_maxs.x - center.x) * lscale;
 
 				// heel.
 				points.push_back({ center.x + d2, center.y, center.z });
@@ -1270,96 +1239,84 @@ bool IWS2000Targer::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int i
 
 	// these hitboxes are capsules.
 	else {
-		// factor in the pointscale.
-		float r = bbox->m_radius * scale;
-		//float br = bbox->m_radius * bscale;
+		points.push_back(transformed_center);
 
-		// compute raw center point.
-		vec3_t center = (bbox->m_mins + bbox->m_maxs) / 2.f;
+		if (index == HITBOX_R_THIGH)
+			return true;
 
-		// head has 5 points.
+		float point_scale = 0.2f;
+
 		if (index == HITBOX_HEAD) {
-			// add center.
-			points.push_back(center);
+			if (!g_menu.main.aimbot.multipoint.get(0))
+				return true;
 
-			if (g_menu.main.aimbot.hitbox.get(0)) {
-				// rotation matrix 45 degrees.
-				// https://math.stackexchange.com/questions/383321/rotating-x-y-points-45-degrees
-				// std::cos( deg_to_rad( 45.f ) )
-				constexpr float rotation = 0.70710678f;
-
-				// top/back 45 deg.
-				// this is the best spot to shoot at.https://discord.com/channels/1056513948322631740/1089290827756482641
-				points.push_back({ bbox->m_maxs.x + (rotation * r), bbox->m_maxs.y + (-rotation * r), bbox->m_maxs.z });
-
-				// right.
-				points.push_back({ bbox->m_maxs.x, bbox->m_maxs.y, bbox->m_maxs.z + r });
-
-				// left.
-				points.push_back({ bbox->m_maxs.x, bbox->m_maxs.y, bbox->m_maxs.z - r });
-
-				// back.
-				points.push_back({ bbox->m_maxs.x, bbox->m_maxs.y - r, bbox->m_maxs.z });
-
-				// get animstate ptr.
-				CCSGOPlayerAnimState* state = record->m_player->m_PlayerAnimState();
-
-				// add this point only under really specific circumstances.
-				// if we are standing still and have the lowest possible pitch pose.
-				//if (state && record->m_anim_velocity.length() <= 0.1f && record->m_eye_angles.x <= state->m_aim_pitch_min) {
-
-				//	// bottom point.
-				//	points.push_back({ bbox->m_maxs.x - r, bbox->m_maxs.y, bbox->m_maxs.z });
-				//}
-			}
+			point_scale = scale;
 		}
 
-		// body has 5 points.
-		else if (index == HITBOX_BODY) {
-			// center.
-			points.push_back(center);
+		if (index == HITBOX_THORAX || index == HITBOX_CHEST) {
+			if (!g_menu.main.aimbot.multipoint.get(1))
+				return true;
 
-			// back.
-			if (g_menu.main.aimbot.hitbox.get(2))
-				points.push_back({ center.x, bbox->m_maxs.y - r, center.z });
+			point_scale = bscale;
 		}
 
-		else if (index == HITBOX_PELVIS || index == HITBOX_UPPER_CHEST) {
-			// back.
-			if (g_menu.main.aimbot.hitbox.get(4))
-				points.push_back({ center.x, bbox->m_maxs.y - r, center.z });
+		if (index == HITBOX_PELVIS || index == HITBOX_BODY) {
+			if (!g_menu.main.aimbot.multipoint.get(2))
+				return true;
+
+			point_scale = bscale;
 		}
 
-		// other stomach/chest hitboxes have 2 points.
-		else if (index == HITBOX_THORAX || index == HITBOX_CHEST) {
-			// add center.
-			points.push_back(center);
+		vec3_t min, max;
+		math::VectorTransform(bbox->m_mins, bones[bbox->m_bone], min);
+		math::VectorTransform(bbox->m_maxs, bones[bbox->m_bone], max);
 
-			// add extra point on back.
-			if (g_menu.main.aimbot.hitbox.get(1))
-				points.push_back({ center.x, bbox->m_maxs.y - r, center.z });
+		RayTracer::Hitbox box(min, max, bbox->m_radius);
+		RayTracer::Trace trace;
+
+		vec3_t delta = (transformed_center - g_cl.m_shoot_pos).normalized();
+		vec3_t max_min = (max - min).normalized();
+		vec3_t cr = max_min.cross(delta);
+
+		ang_t delta_angle;
+		math::VectorAngles(delta, delta_angle);
+
+		vec3_t right, up;
+		if (index == HITBOX_HEAD) {
+			ang_t cr_angle;
+			math::VectorAngles(cr, cr_angle);
+			cr_angle.to_vectors(right, up);
+			cr_angle.z = delta_angle.x;
+
+			vec3_t _up = up, _right = right, _cr = cr;
+			cr = _right;
+			right = _cr;
 		}
+		else
+			math::VectorVectors(delta, up, right);
 
-		else if (index == HITBOX_R_CALF || index == HITBOX_L_CALF) {
-			// add center.
-			points.push_back(center);
+		if (index == HITBOX_HEAD) {
+			vec3_t middle = (right.normalized() + up.normalized()) * 0.5f;
+			vec3_t middle2 = (right.normalized() - up.normalized()) * 0.5f;
 
-			// half bottom.
-			if (g_menu.main.aimbot.hitbox.get(5))
-				points.push_back({ bbox->m_maxs.x - (bbox->m_radius / 2.f), bbox->m_maxs.y, bbox->m_maxs.z });
+			RayTracer::TraceFromCenter(RayTracer::Ray(g_cl.m_shoot_pos, transformed_center + (middle * 1000.f)), box, trace, RayTracer::Flags_RETURNEND);
+			points.push_back(trace.m_traceEnd);
+
+			RayTracer::TraceFromCenter(RayTracer::Ray(g_cl.m_shoot_pos, transformed_center - (middle2 * 1000.f)), box, trace, RayTracer::Flags_RETURNEND);
+			points.push_back(trace.m_traceEnd);
+
+			RayTracer::TraceFromCenter(RayTracer::Ray(g_cl.m_shoot_pos, transformed_center + (up * 1000.f)), box, trace, RayTracer::Flags_RETURNEND);
+			points.push_back(trace.m_traceEnd);
+
+			RayTracer::TraceFromCenter(RayTracer::Ray(g_cl.m_shoot_pos, transformed_center - (up * 1000.f)), box, trace, RayTracer::Flags_RETURNEND);
+			points.push_back(trace.m_traceEnd);
 		}
+		else {
+			RayTracer::TraceFromCenter(RayTracer::Ray(g_cl.m_shoot_pos, transformed_center + (up * 1000.f)), box, trace, RayTracer::Flags_RETURNEND);
+			points.push_back(trace.m_traceEnd);
 
-		else if (index == HITBOX_R_THIGH || index == HITBOX_L_THIGH) {
-			// add center.
-			if (g_menu.main.aimbot.hitbox.get(5))
-				points.push_back(center);
-		}
-
-		// arms get only one point.
-		else if (index == HITBOX_R_UPPER_ARM || index == HITBOX_L_UPPER_ARM) {
-			// elbow.
-			if (g_menu.main.aimbot.hitbox.get(3))
-				points.push_back({ bbox->m_maxs.x + bbox->m_radius, center.y, center.z });
+			RayTracer::TraceFromCenter(RayTracer::Ray(g_cl.m_shoot_pos, transformed_center - (up * 1000.f)), box, trace, RayTracer::Flags_RETURNEND);
+			points.push_back(trace.m_traceEnd);
 		}
 
 		// nothing left to do here.
@@ -1367,8 +1324,10 @@ bool IWS2000Targer::SetupHitboxPoints(IWSRecord* record, BoneArray* bones, int i
 			return false;
 
 		// transform capsule points.
-		for (auto& p : points)
-			math::VectorTransform(p, bones[bbox->m_bone], p);
+		for (auto& p : points) {
+			vec3_t delta_center = p - transformed_center;
+			p = transformed_center + delta_center * point_scale;
+		}
 	}
 
 	return true;
@@ -1465,7 +1424,7 @@ bool IWS2000::CanHitPlayer(IWSRecord* pRecord, int iSide, const vec3_t& vecEyePo
 	return bHitIntersection;
 };
 
-bool IWS2000Targer::GetBestAimPosition(vec3_t& aim, float& damage, int& hitbox, int& hitgroup, IWSRecord* record) {
+bool IWS2000Target::GetBestAimPosition(vec3_t& aim, float& damage, int& hitbox, int& hitgroup, IWSRecord* record) {
 	bool                  skip_other_points{ false }, skip_other_hitboxes{ false };
 	float                 dmg, pendmg;
 	HitscanData_t         scan;
@@ -1478,13 +1437,13 @@ bool IWS2000Targer::GetBestAimPosition(vec3_t& aim, float& damage, int& hitbox, 
 		dmg = pendmg = hp + 1;
 	}
 	else {
-		dmg = g_aimbot.m_damage_toggle ? g_menu.main.aimbot.override_dmg_value.get() : g_menu.main.aimbot.minimal_damage.get();
+		dmg = g_iws.m_damage_toggle ? g_menu.main.aimbot.override_dmg_value.get() : g_menu.main.aimbot.minimal_damage.get();
 
 		if (g_menu.main.aimbot.minimal_damage_hp.get())
 			dmg = std::ceil((dmg / 100.f) * hp);
 
 		if (dmg > 100)
-			dmg = m_player->m_iHealth() + g_aimbot.m_damage_toggle ? g_menu.main.aimbot.override_dmg_value.get() : g_menu.main.aimbot.minimal_damage.get();
+			dmg = m_player->m_iHealth() + g_iws.m_damage_toggle ? g_menu.main.aimbot.override_dmg_value.get() : g_menu.main.aimbot.minimal_damage.get();
 
 		// fuck pen damage 
 		pendmg = dmg;

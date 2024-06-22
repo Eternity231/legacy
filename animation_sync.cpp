@@ -1,6 +1,6 @@
 #include "includes.h"
 
-void IWS2000Targer::CorrectAnimlayers(IWSRecord* record) {
+void IWS2000Target::CorrectAnimlayers(IWSRecord* record) {
 
 	if (!record)
 		return;
@@ -45,7 +45,7 @@ void IWS2000Targer::CorrectAnimlayers(IWSRecord* record) {
 
 }
 
-void IWS2000Targer::CorrectVelocity(Player* m_player, IWSRecord* record, IWSRecord* previous, IWSRecord* pre_previous, float max_speed)
+void IWS2000Target::CorrectVelocity(Player* m_player, IWSRecord* record, IWSRecord* previous, IWSRecord* pre_previous, float max_speed)
 {
 	record->m_velocity.Init();
 	record->m_anim_velocity.Init();

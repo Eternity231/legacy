@@ -3,8 +3,8 @@
 Config g_config{};
 
 void Config::init() {
-	CreateDirectory("C:\\deathrow addon", NULL);
-	CreateDirectory("C:\\deathrow addon\\lua", NULL);
+	CreateDirectory("C:\\anime.today", NULL);
+	CreateDirectory("C:\\anime.today\\lua", NULL);
 }
 
 std::string color_to_string(float col[4]) {
@@ -40,7 +40,7 @@ float* string_to_color(std::string s) {
 
 void Config::save() {
 	char file_path[MAX_PATH] = { 0 };
-	sprintf(file_path, "C:/deathrow addon/csgo_%s.ini", presets.at(i["_preset"]));
+	sprintf(file_path, "C:/anime.today/csgo_%s.ini", presets.at(i["_preset"]));
 
 	for (auto e : b) {
 		if (!std::string(e.first).find("_")) continue;
@@ -82,7 +82,7 @@ void Config::load() {
 	this->load_defaults();
 
 	char file_path[MAX_PATH] = { 0 };
-	sprintf(file_path, "C:/deathrow addon/csgo_%s.ini", presets.at(i["_preset"]));
+	sprintf(file_path, "C:/anime.today/csgo_%s.ini", presets.at(i["_preset"]));
 
 	char b_buffer[65536], i_buffer[65536], f_buffer[65536], c_buffer[65536], m_buffer[65536] = { 0 };
 
@@ -215,7 +215,7 @@ void Config::load() {
 				std::unordered_map<int, bool> vl = {};
 				for (auto kvp : kvpa) {
 					if (kvp == "")
-						continue; // ал?глухой
+						continue;
 
 					std::vector<std::string> kv = split(kvp, ":");
 					vl[std::stoi(kv.at(0))] = std::stoi(kv.at(1));
@@ -228,7 +228,6 @@ void Config::load() {
 		}
 	}
 
-	// ху?
 	this->load_keys();
 }
 
@@ -378,7 +377,7 @@ void Config::load_defaults() {
 void Config::load_keys() {
 	for (int k = 0; k < presets.size(); k++) {
 		char buffer[32] = { 0 }; sprintf(buffer, "_preset_%i", k);
-		i[buffer] = GetPrivateProfileIntA("k", buffer, 0, "C:/youlense/csgo_keys.ini");
+		i[buffer] = GetPrivateProfileIntA("k", buffer, 0, "C:/anime.today/csgo_keys.ini");
 	}
 }
 
@@ -386,7 +385,7 @@ void Config::save_keys() {
 	for (int k = 0; k < presets.size(); k++) {
 		char buffer[32] = { 0 }; sprintf(buffer, "_preset_%i", k);
 		char value[32] = { 0 }; sprintf(value, "%i", i[buffer]);
-		WritePrivateProfileStringA("k", buffer, value, "C:/youlense/csgo_keys.ini");
+		WritePrivateProfileStringA("k", buffer, value, "C:/anime.today/csgo_keys.ini");
 	}
 }
 

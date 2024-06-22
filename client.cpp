@@ -110,10 +110,10 @@ void Client::BackupPlayers(bool restore) {
 		for (int i{ 1 }; i <= g_csgo.m_globals->m_max_clients; ++i) {
 			Player* player = g_csgo.m_entlist->GetClientEntity< Player* >(i);
 
-			if (!g_aimbot.IsValidTarget(player))
+			if (!g_iws.IsValidTarget(player))
 				continue;
 
-			g_aimbot.m_backup[i - 1].restore(player);
+			g_iws.m_backup[i - 1].restore(player);
 		}
 	}
 
@@ -122,10 +122,10 @@ void Client::BackupPlayers(bool restore) {
 		for (int i{ 1 }; i <= g_csgo.m_globals->m_max_clients; ++i) {
 			Player* player = g_csgo.m_entlist->GetClientEntity< Player* >(i);
 
-			if (!g_aimbot.IsValidTarget(player))
+			if (!g_iws.IsValidTarget(player))
 				continue;
 
-			g_aimbot.m_backup[i - 1].store(player);
+			g_iws.m_backup[i - 1].store(player);
 		}
 	}
 }
@@ -225,7 +225,7 @@ void Client::DoMove() {
 	g_hvh.SendPacket();
 
 	// run aimbot.
-	g_aimbot.think();
+	g_iws.think();
 
 	// run antiaims.
 	g_hvh.AntiAim();

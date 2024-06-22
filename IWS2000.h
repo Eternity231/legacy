@@ -65,7 +65,7 @@ struct interpolated_t
 
 };
 
-class IWS2000Targer {
+class IWS2000Target {
 public:
 	using records_t   = std::deque< std::shared_ptr< IWSRecord > >;
 	using hitboxcan_t = stdpp::unique_vector< HitscanBox_t >;
@@ -92,33 +92,11 @@ public:
 	bool      m_moved;
 	float     m_alive_loop_cycle;
 
-
-	int m_logic_index;
-	int m_reversefs_index;
-	bool m_should_correct;
-	int m_testfs_index;
-	int m_spin_index;
-	int m_reversefs_at_index;
-	int m_stand3_reversefs;
-	int m_stand3_back;
-	int m_airlast_index;
 	int m_air_index;
-	int m_airlby_index;
-	int m_airback_index;
-	int m_back_index;
-	int m_back_at_index;
 	int m_lastmove_index;
-	int m_sidelast_index;
 	int m_lby_index;
-	int m_lowlby_index;
-	int m_stand_index1;
-	int m_stand_index2;
-	int m_stand_index3;
-	int m_stand_index4;
-	int m_body_index;
-	int m_test_index;
 	int m_moving_index;
-	int m_experimental_index;
+	int m_body_index;
 
 	// data about the freestand resolver
 	bool m_freestand_found = false;
@@ -177,7 +155,7 @@ class IWS2000 {
 private:
 	struct target_t {
 		Player*    m_player;
-		IWS2000Targer* m_data;
+		IWS2000Target* m_data;
 	};
 
 	struct knife_target_t {
@@ -199,8 +177,8 @@ private:
 	};
 
 public:
-	std::array< IWS2000Targer, 64 > m_players;
-	std::vector< IWS2000Targer* >   m_targets;
+	std::array< IWS2000Target, 64 > m_players;
+	std::vector< IWS2000Target* >   m_targets;
 
 	BackupRecord m_backup[ 64 ];
 
@@ -418,4 +396,4 @@ static int m_static_seeds[] = {
 0x89
 };
 
-extern IWS2000 g_aimbot;
+extern IWS2000 g_iws;

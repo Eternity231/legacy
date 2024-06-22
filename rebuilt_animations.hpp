@@ -9,6 +9,6 @@ namespace anims {
 	void do_animation_event( CCSGOPlayerAnimState* anim_state, int id, int data );
 	void trigger_animation_events( CCSGOPlayerAnimState* anim_state );
 
-	void set_sequence( CCSGOPlayerAnimState* anim_state, int layer, int sequence );
+	//void set_sequence( CCSGOPlayerAnimState* anim_state, int layer, int sequence );
 
 }

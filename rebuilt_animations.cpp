@@ -3,6 +3,7 @@
 #include <cmath>
 
 /* rebuilded from skeet*/
+
 void anims::copy_client_layers( Player* ent, std::array<C_AnimationLayer, 13>& to, std::array<C_AnimationLayer, 13>& from ) { 
 	const auto layers = ent->layers( );
 

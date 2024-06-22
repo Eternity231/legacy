@@ -160,10 +160,13 @@ void Menu::draw( ) {
 		return;
 
 	ui::SetNextWindowSizeConstraints( ImVec2( 560, 500 ), ImVec2( 4096, 4096 ) );
-	ui::Begin( "deathrow | lua addon", 0, ImGuiWindowFlags_NoTitleBar );
+	ui::Begin( "anime.today | lua addon", 0, ImGuiWindowFlags_NoTitleBar );
 
-	ui::TabButton( "Misc", &this->m_nCurrentTab, 0, 2 );
-	ui::TabButton( "Config", &this->m_nCurrentTab, 1, 2 );
+	ui::TabButton("IWS2000", &this->m_nCurrentTab, 0, 2);
+	ui::TabButton("Lycoris", &this->m_nCurrentTab, 1, 2);
+	ui::TabButton("Visuals", &this->m_nCurrentTab, 2, 2);
+	ui::TabButton( "Misc", &this->m_nCurrentTab, 3, 2 );
+	ui::TabButton( "Config", &this->m_nCurrentTab, 4, 2 );
 
 	static auto calculateChildWindowPosition = [ ]( int num ) -> ImVec2 {
 		return ImVec2( ui::GetWindowPos( ).x + 26 + ( ui::GetWindowSize( ).x / 3 - 31 ) * num + 20 * num, ui::GetWindowPos( ).y + 52 );
@@ -178,7 +181,19 @@ void Menu::draw( ) {
 	auto cfg = g_config;
 
 	switch ( this->m_nCurrentTab ) {
-		case 0: {
+		case 1: {
+
+			ui::BeginChild("Rage", ImVec2(ui::GetWindowSize().x / 2 - 21, ui::GetWindowSize().y - 80)); {
+				ui::Checkbox("Enable", &g_config.b[XOR("iws_enable")]);
+
+			} ui::EndChild();
+			ui::SameLine();
+			ui::BeginChild("other", ImVec2(ui::GetWindowSize().x / 2 - 21, ui::GetWindowSize().y - 80)); {
+
+			} ui::EndChild();
+
+		} break;
+		case 2: {
 
 			ui::BeginChild( "main", ImVec2( ui::GetWindowSize( ).x / 2 - 21, ui::GetWindowSize( ).y - 80 ) ); {
 				ui::Checkbox( "Dormant", &g_config.b[ XOR( "esp_dormant" ) ] );
@@ -208,7 +223,7 @@ void Menu::draw( ) {
 			} ui::EndChild( );
 
 		} break;
-		case 1: {
+		case 4: {
 			ui::BeginChild( "config", ImVec2( ui::GetWindowSize( ).x / 2 - 21, ui::GetWindowSize( ).y - 80 ) ); {
 				ui::Text( "menu key" );
 				ui::Keybind( "menukey", &g_config.i[ XOR( "misMenukey" ) ] ); dmt( "misMenukey" );
@@ -225,7 +240,7 @@ void Menu::draw( ) {
 					g_config.save( );
 
 				if ( ui::Button( "open settings folder" ) )
-					ShellExecuteA( 0, "open", "C:/deathrow addon", NULL, NULL, SW_NORMAL );
+					ShellExecuteA( 0, "open", "C:/anime.today", NULL, NULL, SW_NORMAL );
 
 				draw_lua_items( "misc", "cheat settings" );
 			} ui::EndChild( );
@@ -241,7 +256,7 @@ void Menu::draw( ) {
 
 				ui::ListBoxHeader( "##urnn", ImVec2( 0, 160 ) );
 				{
-					for ( auto s : g_lua.scripts )
+					for (auto& s : g_lua.scripts)
 					{
 						if ( ui::Selectable( s.c_str( ), g_lua.loaded.at( g_lua.get_script_id( s ) ), NULL, ImVec2( 0, 0 ) ) ) {
 							auto scriptId = g_lua.get_script_id( s );
